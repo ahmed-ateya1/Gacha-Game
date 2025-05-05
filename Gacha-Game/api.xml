@@ -1,0 +1,620 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Gacha-Game.API</name>
+    </assembly>
+    <members>
+        <member name="T:Gacha_Game.Controllers.AccountController">
+            <summary>
+            Manages user accounts, including registration, login, password reset, roles, and token handling.
+            </summary>
+        </member>
+        <member name="M:Gacha_Game.Controllers.AccountController.#ctor(Gacha_Game.Core.ServiceContract.IAuthenticationServices,Microsoft.AspNetCore.Identity.UserManager{Gacha_Game.Core.Domain.IdentityEntities.ApplicationUser},Microsoft.AspNetCore.Identity.UI.Services.IEmailSender,Microsoft.AspNetCore.Identity.SignInManager{Gacha_Game.Core.Domain.IdentityEntities.ApplicationUser},Gacha_Game.Core.Domain.RepositoryContract.IUnitOfWork,Microsoft.AspNetCore.Identity.IPasswordHasher{Gacha_Game.Core.Domain.IdentityEntities.ApplicationUser},Microsoft.Extensions.Logging.ILogger{Gacha_Game.Controllers.AccountController})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Gacha_Game.Controllers.AccountController"/> class.
+            </summary>
+            <param name="authenticationServices">Authentication service.</param>
+            <param name="userManager">User manager service.</param>
+            <param name="emailSender">Email sender service.</param>
+            <param name="signInManager">Sign-in manager service.</param>
+            <param name="unitOfWork">Unit of work service.</param>
+            <param name="passwordHasher">Password hasher service.</param>
+            <param name="logger">Logger instance for logging controller actions.</param>
+        </member>
+        <member name="M:Gacha_Game.Controllers.AccountController.RegisterCleintAsync(Gacha_Game.Core.Dtos.AuthenticationDto.RegisterDTO)">
+            <summary>
+            Registers a new client account.
+            </summary>
+            <param name="registerDTO">Client registration details.</param>
+            <returns>Authentication response with token and status.</returns>
+            <response code="200">Client registered successfully.</response>
+            <response code="400">Invalid input or request.</response>
+            <response code="500">Internal server error.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.AccountController.LoginAsync(Gacha_Game.Core.Dtos.AuthenticationDto.LoginDTO)">
+            <summary>
+            Logs in a user or company.
+            </summary>
+            <param name="loginDTO">Login credentials (email, password).</param>
+            <returns>Authentication response with token and status.</returns>
+            <response code="200">Login successful.</response>
+            <response code="400">Invalid credentials or input.</response>
+            <response code="500">Internal server error.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.AccountController.ForgotPassword(Gacha_Game.Core.Dtos.AuthenticationDto.ForgotPasswordDTO)">
+            <summary>
+            Sends a password reset OTP to the user's email.
+            </summary>
+            <param name="forgotPassword">Email to send the password reset link to.</param>
+            <returns>Status message.</returns>
+            <response code="200">Password reset OTP sent successfully.</response>
+            <response code="400">Invalid input.</response>
+            <response code="500">Internal server error.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.AccountController.ResetPassword(Gacha_Game.Core.Dtos.AuthenticationDto.ResetPasswordDTO)">
+            <summary>
+            Resets the user's password using an OTP.
+            </summary>
+            <param name="resetPassword">Reset password request details, including OTP.</param>
+            <returns>Status message.</returns>
+            <response code="200">Password reset successfully.</response>
+            <response code="400">Invalid OTP or request.</response>
+            <response code="500">Internal server error.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.AccountController.ChangePassword(Gacha_Game.Core.Dtos.AuthenticationDto.ChangePasswordRequest)">
+            <summary>
+            Changes the user's password.
+            </summary>
+            <param name="model">Change password request details.</param>
+            <returns>Status message.</returns>
+            <response code="200">Password changed successfully.</response>
+            <response code="400">Invalid current password.</response>
+            <response code="404">User not found.</response>
+            <response code="500">Internal server error.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.AccountController.VerifyOtp(Gacha_Game.Core.Dtos.AuthenticationDto.OtpVerificationRequest)">
+            <summary>
+            Verifies the OTP code.
+            </summary>
+            <param name="request">OTP verification request.</param>
+            <returns>Status message.</returns>
+            <response code="200">OTP verified successfully.</response>
+            <response code="400">Invalid or expired OTP.</response>
+            <response code="500">Internal server error.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.AccountController.RevokeToken(Gacha_Game.Core.Dtos.AuthenticationDto.RevokTokenDTO)">
+            <summary>
+            Revokes a refresh token.
+            </summary>
+            <param name="revokTokenDTO">Token details to revoke.</param>
+            <returns>Status message.</returns>
+        </member>
+        <member name="M:Gacha_Game.Controllers.AccountController.AddRoleAsync(Gacha_Game.Core.Dtos.AuthenticationDto.AddRoleDTO)">
+            <summary>
+            Adds a new role to the user.
+            </summary>
+            <param name="model">Role details to assign.</param>
+            <returns>Status message.</returns>
+        </member>
+        <member name="M:Gacha_Game.Controllers.AccountController.IsEmailInUse(System.String)">
+            <summary>
+            Checks if the email is already in use.
+            </summary>
+            <param name="email">The email to check.</param>
+            <returns>True if the email is in use; otherwise, false.</returns>
+            <response code="200">Check successful, result returned.</response>
+            <response code="500">Internal server error.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.AccountController.GetUserInfo(System.Guid)">
+            <summary>
+            Retrieves user information based on the provided user ID.
+            </summary>
+            <param name="userID">The unique identifier (GUID) of the user to retrieve.</param>
+            <returns>
+            An <see cref="T:Microsoft.AspNetCore.Mvc.ActionResult`1"/> containing an <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> with the user details if found,
+            or a not found response if the user does not exist.
+            </returns>
+            <response code="200">Returns the user information when the user is found.</response>
+            <response code="404">Returned when no user matches the provided user ID.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.AccountController.GetUsers">
+            <summary>
+            Retrieves all users from the system asynchronously.
+            </summary>
+            <remarks>
+            This endpoint logs the process of fetching users and returns an <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> containing the result.
+            If no users are found, a 404 Not Found response is returned; otherwise, a 200 OK response is returned with the list of users.
+            </remarks>
+            <returns>
+            A task that represents the asynchronous operation, containing an <see cref="T:Microsoft.AspNetCore.Mvc.ActionResult`1"/> with an <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/>.
+            The response includes a success flag, message, status code, and the list of users if successful.
+            </returns>
+            <response code="200">Returns the list of users when retrieval is successful.</response>
+            <response code="404">Returned when no users are found in the system.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.AccountController.IncreaseCoin(Gacha_Game.Core.Dtos.AuthenticationDto.IncreaseCurrancyDto)">
+            <summary>
+            Increases the currency (coins) for a specific user.
+            </summary>
+            <param name="currancyDto">The data transfer object containing the user ID and the amount to increase.</param>
+            <returns>
+            An <see cref="T:Microsoft.AspNetCore.Mvc.ActionResult`1"/> containing an <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> indicating the success or failure of the operation.
+            </returns>
+            <response code="200">Currency increased successfully.</response>
+            <response code="404">User not found.</response>
+            <response code="500">Internal server error.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.AccountController.RefreshToken">
+            <summary>
+            Refreshes the user's authentication token.
+            </summary>
+            <returns>New authentication token.</returns>
+        </member>
+        <member name="M:Gacha_Game.Controllers.AccountController.SetRefreshToken(System.String,System.DateTime)">
+            <summary>
+            Sets the refresh token cookie in the response.
+            </summary>
+            <param name="refreshToken">The refresh token string.</param>
+            <param name="expires">The expiration time for the token.</param>
+        </member>
+        <member name="T:Gacha_Game.Controllers.BannerCharacterController">
+            <summary>
+            Controller for managing banner character operations.
+            </summary>
+        </member>
+        <member name="M:Gacha_Game.Controllers.BannerCharacterController.#ctor(MediatR.IMediator,Microsoft.Extensions.Logging.ILogger{Gacha_Game.Controllers.BannerCharacterController})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Gacha_Game.Controllers.BannerCharacterController"/> class.
+            </summary>
+            <param name="mediator">The MediatR mediator for handling commands and queries.</param>
+            <param name="logger">The logger for logging controller actions.</param>
+        </member>
+        <member name="M:Gacha_Game.Controllers.BannerCharacterController.AddBannerCharacter(Gacha_Game.Core.Dtos.BannerCharacterDto.BannerCharacterAddRequest)">
+            <summary>
+            Adds a new banner character.
+            </summary>
+            <param name="request">The request containing details for the new banner character.</param>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> indicating the result of the operation.</returns>
+            <response code="200">Returns the created banner character details if successful.</response>
+            <response code="400">Returns an error message if the banner character could not be added.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.BannerCharacterController.UpdateBannerCharacter(Gacha_Game.Core.Dtos.BannerCharacterDto.BannerCharacterUpdateRequest)">
+            <summary>
+            Updates an existing banner character.
+            </summary>
+            <param name="request">The request containing updated details for the banner character.</param>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> indicating the result of the operation.</returns>
+            <response code="200">Returns the updated banner character details if successful.</response>
+            <response code="404">Returns an error message if the banner character was not found.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.BannerCharacterController.GetBannerCharacter(System.Guid)">
+            <summary>
+            Retrieves banner characters by banner ID.
+            </summary>
+            <param name="bannerId">The unique identifier of the banner.</param>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> containing the banner characters.</returns>
+            <response code="200">Returns the banner characters if found.</response>
+            <response code="404">Returns an error message if no banner characters were found.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.BannerCharacterController.GetAllBannerCharacter">
+            <summary>
+            Retrieves all banner characters.
+            </summary>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> containing a list of all banner characters.</returns>
+            <response code="200">Returns the list of banner characters if successful.</response>
+            <response code="404">Returns an error message if no banner characters were found.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.BannerCharacterController.GetBannerCharacterById(System.Guid)">
+            <summary>
+            Retrieves a banner character by its ID.
+            </summary>
+            <param name="id">The unique identifier of the banner character.</param>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> containing the banner character details.</returns>
+            <response code="200">Returns the banner character if found.</response>
+            <response code="404">Returns an error message if the banner character was not found.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.CharacterController.AddCharacter(Gacha_Game.Core.Dtos.CharacterDto.CharacterAddRequest)">
+            <summary>
+            Adds a new character to the system.
+            </summary>
+            <param name="command">The character creation details.</param>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> indicating the result of the operation.</returns>
+            <response code="200">Character added successfully.</response>
+            <response code="400">Failed to add character due to invalid data or processing error.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.CharacterController.UpdateCharacter(Gacha_Game.Core.Dtos.CharacterDto.CharacterUpdateRequest)">
+            <summary>
+            Updates an existing character.
+            </summary>
+            <param name="command">The character update details.</param>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> indicating the result of the operation.</returns>
+            <response code="200">Character updated successfully.</response>
+            <response code="400">Failed to update character due to invalid data or processing error.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.CharacterController.DeleteCharacter(System.Guid)">
+            <summary>
+            Deletes a character by ID.
+            </summary>
+            <param name="id">The unique identifier of the character to delete.</param>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> indicating the result of the operation.</returns>
+            <response code="200">Character deleted successfully.</response>
+            <response code="404">Character not found or failed to delete.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.CharacterController.GetAllCharacters">
+            <summary>
+            Retrieves all characters.
+            </summary>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> containing the list of characters.</returns>
+            <response code="200">Characters retrieved successfully.</response>
+            <response code="400">Failed to retrieve characters.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.CharacterController.GetCharacter(System.Guid)">
+            <summary>
+            Retrieves a character by ID.
+            </summary>
+            <param name="id">The unique identifier of the character.</param>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> containing the character details.</returns>
+            <response code="200">Character retrieved successfully.</response>
+            <response code="400">Failed to retrieve character.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.CharacterController.GetCharacterByName(System.String)">
+            <summary>
+            Retrieves characters by name (case-insensitive partial match).
+            </summary>
+            <param name="name">The name or partial name of the character.</param>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> containing the matching characters.</returns>
+            <response code="200">Characters retrieved successfully.</response>
+            <response code="400">Failed to retrieve characters.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.CharacterController.GetCharacterByRarity(System.Guid)">
+            <summary>
+            Retrieves characters by rarity ID.
+            </summary>
+            <param name="rarityId">The unique identifier of the rarity type.</param>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> containing the matching characters.</returns>
+            <response code="200">Characters retrieved successfully.</response>
+            <response code="400">Failed to retrieve characters.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.CharacterController.GetCharacterByElement(System.Guid)">
+            <summary>
+            Retrieves characters by element type ID.
+            </summary>
+            <param name="elementId">The unique identifier of the element type.</param>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> containing the matching characters.</returns>
+            <response code="200">Characters retrieved successfully.</response>
+            <response code="400">Failed to retrieve characters.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.CharacterController.GetCharacterByAttack(System.Int32)">
+            <summary>
+            Retrieves characters by base attack value.
+            </summary>
+            <param name="attackBase">The base attack value of the character.</param>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> containing the matching characters.</returns>
+            <response code="200">Characters retrieved successfully.</response>
+            <response code="400">Failed to retrieve characters.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.CharacterController.GetCharacterByDefense(System.Int32)">
+            <summary>
+            Retrieves characters by base defense value.
+            </summary>
+            <param name="defenseBase">The base defense value of the character.</param>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> containing the matching characters.</returns>
+            <response code="200">Characters retrieved successfully.</response>
+            <response code="400">Failed to retrieve characters.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.CharacterController.GetCharacterByHealth(System.Int32)">
+            <summary>
+            Retrieves characters by base health value.
+            </summary>
+            <param name="healthBase">The base health value of the character.</param>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> containing the matching characters.</returns>
+            <response code="200">Characters retrieved successfully.</response>
+            <response code="400">Failed to retrieve characters.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.CharacterController.GetCharacterByAttackAndDefense(System.Int32,System.Int32)">
+            <summary>
+            Retrieves characters by base attack and defense values.
+            </summary>
+            <param name="attackBase">The base attack value of the character.</param>
+            <param name="defenseBase">The base defense value of the character.</param>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> containing the matching characters.</returns>
+            <response code="200">Characters retrieved successfully.</response>
+            <response code="400">Failed to retrieve characters.</response>
+        </member>
+        <member name="T:Gacha_Game.Controllers.ElementTypeController">
+            <summary>
+            API controller for managing ElementType entities in the Gacha Game application.
+            </summary>
+        </member>
+        <member name="M:Gacha_Game.Controllers.ElementTypeController.#ctor(MediatR.IMediator,Microsoft.Extensions.Logging.ILogger{Gacha_Game.Controllers.ElementTypeController})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Gacha_Game.Controllers.ElementTypeController"/> class.
+            </summary>
+            <param name="mediator">The MediatR mediator for handling CQRS commands and queries.</param>
+            <param name="logger">The logger for capturing controller events and errors.</param>
+        </member>
+        <member name="M:Gacha_Game.Controllers.ElementTypeController.AddElement(Gacha_Game.Core.Dtos.ElementTypeDto.ElementTypeAddRequest)">
+            <summary>
+            Adds a new ElementType to the system.
+            </summary>
+            <param name="request">The request containing ElementType details (e.g., Name, Icon).</param>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> indicating the operation result.</returns>
+            <response code="200">Returns the created ElementType details.</response>
+            <response code="400">If the request is invalid or the operation fails.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.ElementTypeController.UpdateElementType(Gacha_Game.Core.Dtos.ElementTypeDto.ElementTypeUpdateRequest)">
+            <summary>
+            Updates an existing ElementType.
+            </summary>
+            <param name="request">The request containing updated ElementType details (e.g., Id, Name, Icon).</param>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> indicating the operation result.</returns>
+            <response code="200">Returns the updated ElementType details.</response>
+            <response code="404">If the ElementType with the specified Id is not found.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.ElementTypeController.DeleteElementType(System.Guid)">
+            <summary>
+            Deletes an ElementType by its Id.
+            </summary>
+            <param name="id">The unique identifier of the ElementType to delete.</param>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> indicating the operation result.</returns>
+            <response code="200">Confirms the ElementType was deleted successfully.</response>
+            <response code="404">If the ElementType with the specified Id is not found.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.ElementTypeController.GetAllElementTypes">
+            <summary>
+            Retrieves all ElementTypes.
+            </summary>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> containing a list of ElementTypes.</returns>
+            <response code="200">Returns the list of ElementTypes.</response>
+            <response code="404">If no ElementTypes are found.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.ElementTypeController.GetElementTypeById(System.Guid)">
+            <summary>
+            Retrieves an ElementType by its Id.
+            </summary>
+            <param name="id">The unique identifier of the ElementType to retrieve.</param>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> containing the ElementType details.</returns>
+            <response code="200">Returns the ElementType details.</response>
+            <response code="404">If the ElementType with the specified Id is not found.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.ElementTypeController.GetElementTypeByName(System.String)">
+            <summary>
+            Retrieves an ElementType by its name (case-insensitive partial match).
+            </summary>
+            <param name="name">The name or partial name of the ElementType to search for.</param>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> containing the ElementType details.</returns>
+            <response code="200">Returns the ElementType details.</response>
+            <response code="404">If no ElementType matches the specified name.</response>
+        </member>
+        <member name="T:Gacha_Game.Controllers.GachaBannerController">
+            <summary>
+            Handles CRUD operations and queries for Gacha Banners.
+            </summary>
+        </member>
+        <member name="M:Gacha_Game.Controllers.GachaBannerController.#ctor(MediatR.IMediator,Microsoft.Extensions.Logging.ILogger{Gacha_Game.Controllers.GachaBannerController})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Gacha_Game.Controllers.GachaBannerController"/> class.
+            </summary>
+            <param name="mediator">The mediator for handling CQRS commands and queries.</param>
+            <param name="logger">The logger for logging controller actions.</param>
+        </member>
+        <member name="M:Gacha_Game.Controllers.GachaBannerController.AddGachaBanner(Gacha_Game.Core.Dtos.GachaBannerDto.GachaBannerAddRequest)">
+            <summary>
+            Adds a new Gacha Banner.
+            </summary>
+            <param name="request">The request containing Gacha Banner details.</param>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> indicating the result of the operation.</returns>
+        </member>
+        <member name="M:Gacha_Game.Controllers.GachaBannerController.UpdateGachaBanner(Gacha_Game.Core.Dtos.GachaBannerDto.GachaBannerUpdateRequest)">
+            <summary>
+            Updates an existing Gacha Banner.
+            </summary>
+            <param name="request">The request containing updated Gacha Banner details.</param>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> indicating the result of the operation.</returns>
+        </member>
+        <member name="M:Gacha_Game.Controllers.GachaBannerController.DeleteGachaBanner(System.Guid)">
+            <summary>
+            Deletes a Gacha Banner by ID.
+            </summary>
+            <param name="id">The ID of the Gacha Banner to delete.</param>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> indicating the result of the operation.</returns>
+        </member>
+        <member name="M:Gacha_Game.Controllers.GachaBannerController.GetGachaBanner(System.Guid)">
+            <summary>
+            Retrieves a Gacha Banner by ID.
+            </summary>
+            <param name="id">The ID of the Gacha Banner to retrieve.</param>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> containing the Gacha Banner details.</returns>
+        </member>
+        <member name="M:Gacha_Game.Controllers.GachaBannerController.GetAllGachaBanners">
+            <summary>
+            Retrieves all Gacha Banners.
+            </summary>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> containing a list of all Gacha Banners.</returns>
+        </member>
+        <member name="M:Gacha_Game.Controllers.GachaBannerController.GetActiveGachaBanners">
+            <summary>
+            Retrieves all active Gacha Banners.
+            </summary>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> containing a list of active Gacha Banners.</returns>
+        </member>
+        <member name="M:Gacha_Game.Controllers.GachaBannerController.GetInActiveGachaBanners">
+            <summary>
+            Retrieves all inactive Gacha Banners.
+            </summary>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> containing a list of inactive Gacha Banners.</returns>
+        </member>
+        <member name="M:Gacha_Game.Controllers.GachaBannerController.GetGachaBannersByDate(System.DateTime,System.DateTime)">
+            <summary>
+            Retrieves Gacha Banners within a specified date range.
+            </summary>
+            <param name="startDate">The start date for filtering Gacha Banners.</param>
+            <param name="endDate">The end date for filtering Gacha Banners.</param>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> containing a list of Gacha Banners in the date range.</returns>
+        </member>
+        <member name="M:Gacha_Game.Controllers.GachaBannerController.GetGachaBannersByName(System.String)">
+            <summary>
+            Retrieves Gacha Banners by name (case-insensitive partial match).
+            </summary>
+            <param name="name">The name or partial name to search for.</param>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> containing a list of matching Gacha Banners.</returns>
+        </member>
+        <member name="T:Gacha_Game.Controllers.InventoryController">
+            <summary>
+            Controller for managing inventory-related operations.
+            </summary>
+        </member>
+        <member name="M:Gacha_Game.Controllers.InventoryController.#ctor(MediatR.IMediator,Microsoft.Extensions.Logging.ILogger{Gacha_Game.Controllers.InventoryController})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Gacha_Game.Controllers.InventoryController"/> class.
+            </summary>
+            <param name="mediator">The MediatR mediator for handling commands and queries.</param>
+            <param name="logger">The logger for logging controller actions.</param>
+        </member>
+        <member name="M:Gacha_Game.Controllers.InventoryController.AddInventory(Gacha_Game.Core.Dtos.InventoryDto.InventoryAddRequest)">
+            <summary>
+            Adds a new inventory item.
+            </summary>
+            <param name="request">The request containing details for the new inventory item.</param>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> indicating the result of the operation.</returns>
+            <response code="200">Returns the created inventory item details if successful.</response>
+            <response code="400">Returns an error message if the inventory could not be added.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.InventoryController.GetInventory(System.Guid)">
+            <summary>
+            Retrieves an inventory item by its ID.
+            </summary>
+            <param name="id">The unique identifier of the inventory item.</param>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> containing the inventory item details.</returns>
+            <response code="200">Returns the inventory item if found.</response>
+            <response code="400">Returns an error message if the inventory item could not be retrieved.</response>
+            <response code="401">Returns an error message if the user is not authorized.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.InventoryController.GetAllInventory">
+            <summary>
+            Retrieves all inventory items.
+            </summary>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> containing a list of all inventory items.</returns>
+            <response code="200">Returns the list of inventory items if successful.</response>
+            <response code="400">Returns an error message if the inventory items could not be retrieved.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.InventoryController.GetInventoryByUserId(System.Guid)">
+            <summary>
+            Retrieves inventory items for a specific user by their user ID.
+            </summary>
+            <param name="userId">The unique identifier of the user.</param>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> containing the user's inventory items.</returns>
+            <response code="200">Returns the user's inventory items if found.</response>
+            <response code="400">Returns an error message if the inventory items could not be retrieved.</response>
+            <response code="401">Returns an error message if the user is not authorized.</response>
+        </member>
+<<<<<<< HEAD
+        <member name="T:Gacha_Game.Controllers.PullController">
+            <summary>
+            Controller responsible for handling gacha pull (spin) operations.
+            </summary>
+        </member>
+        <member name="M:Gacha_Game.Controllers.PullController.#ctor(Gacha_Game.Core.ServiceContract.ISpinService)">
+            <summary>
+            Controller responsible for handling gacha pull (spin) operations.
+            </summary>
+        </member>
+        <member name="M:Gacha_Game.Controllers.PullController.Spin(Gacha_Game.Core.Dtos.SpinDto.SpinAddRequest)">
+            <summary>
+            Performs a spin on the specified gacha banner and returns the pulled characters.
+            </summary>
+            <param name="request">The spin request containing the banner ID and pull type.</param>
+            <returns>
+            Returns an <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> with the result of the spin.
+            If successful, the response contains the pulled characters; otherwise, it contains an error message.
+            </returns>
+            <response code="200">Spin was successful. Returns the pulled characters.</response>
+            <response code="400">Spin failed due to invalid input or other issues.</response>
+        </member>
+=======
+>>>>>>> f47beec643960162ae704dd9675bdf7a4d96c033
+        <member name="T:Gacha_Game.Controllers.RarityController">
+            <summary>
+            Controller for managing rarity-related operations in the Gacha Game API.
+            </summary>
+        </member>
+        <member name="M:Gacha_Game.Controllers.RarityController.#ctor(MediatR.IMediator,Microsoft.Extensions.Logging.ILogger{Gacha_Game.Controllers.RarityController})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Gacha_Game.Controllers.RarityController"/> class.
+            </summary>
+            <param name="mediator">The MediatR instance for handling CQRS commands and queries.</param>
+            <param name="logger">The logger instance for logging controller actions.</param>
+        </member>
+        <member name="M:Gacha_Game.Controllers.RarityController.AddRarity(Gacha_Game.Core.Dtos.RarityDto.RarityAddRequest)">
+            <summary>
+            Adds a new rarity to the system.
+            </summary>
+            <param name="request">The request containing rarity details to add.</param>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> indicating the result of the operation.</returns>
+            <response code="200">Rarity added successfully.</response>
+            <response code="400">Rarity already exists.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.RarityController.UpdateRarity(Gacha_Game.Core.Dtos.RarityDto.RarityUpdateRequest)">
+            <summary>
+            Updates an existing rarity in the system.
+            </summary>
+            <param name="request">The request containing updated rarity details.</param>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> indicating the result of the operation.</returns>
+            <response code="200">Rarity updated successfully.</response>
+            <response code="404">Rarity not found.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.RarityController.DeleteRarity(System.Guid)">
+            <summary>
+            Deletes a rarity by its unique identifier.
+            </summary>
+            <param name="id">The unique identifier of the rarity to delete.</param>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> indicating the result of the operation.</returns>
+            <response code="200">Rarity deleted successfully.</response>
+            <response code="404">Rarity not found.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.RarityController.GetRarity(System.Guid)">
+            <summary>
+            Retrieves a rarity by its unique identifier.
+            </summary>
+            <param name="id">The unique identifier of the rarity to retrieve.</param>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> containing the rarity details.</returns>
+            <response code="200">Rarity retrieved successfully.</response>
+            <response code="404">Rarity not found.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.RarityController.GetAllRarities">
+            <summary>
+            Retrieves all rarities in the system.
+            </summary>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> containing a list of all rarities.</returns>
+            <response code="200">Rarities retrieved successfully.</response>
+            <response code="404">No rarities found.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.RarityController.GetRarityByName(System.String)">
+            <summary>
+            Retrieves rarities by name (case-insensitive partial match).
+            </summary>
+            <param name="name">The name or partial name of the rarity to search for.</param>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> containing matching rarities.</returns>
+            <response code="200">Rarity retrieved successfully.</response>
+            <response code="404">Rarity not found.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.RarityController.GetRarityByDropRate(System.Int32)">
+            <summary>
+            Retrieves rarities by drop rate.
+            </summary>
+            <param name="dropRate">The drop rate of the rarity to retrieve.</param>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> containing matching rarities.</returns>
+            <response code="200">Rarity retrieved successfully.</response>
+            <response code="404">Rarity not found.</response>
+        </member>
+        <member name="M:Gacha_Game.Controllers.RarityController.GetRarityByColorCode(System.String)">
+            <summary>
+            Retrieves rarities by color code (case-insensitive partial match).
+            </summary>
+            <param name="colorCode">The color code or partial color code of the rarity to search for.</param>
+            <returns>An <see cref="T:Gacha_Game.Core.Dtos.ApiResponse"/> containing matching rarities.</returns>
+            <response code="200">Rarity retrieved successfully.</response>
+            <response code="404">Rarity not found.</response>
+        </member>
+    </members>
+</doc>

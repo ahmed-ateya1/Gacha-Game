@@ -1,0 +1,6 @@
+@Gacha_Game_HostAddress = http://localhost:5288
+
+GET {{Gacha_Game_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
